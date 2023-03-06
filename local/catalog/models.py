@@ -12,7 +12,7 @@ class Genre(models.Model):
 
 class Language(models.Model):
     """Model representing a book language."""
-    lang = models.CharField(max_length=200, help_text='Enter a book genre (e.g. Science Fiction)')
+    lang = models.CharField(max_length=20, help_text='Enter a book genre (e.g. Science Fiction)')
 
     def __str__(self):
         """String for representing the Model object."""
@@ -33,7 +33,6 @@ class Book(models.Model):
     # ManyToManyField used because genre can contain many books. Books can cover many genres.
     # Genre class has already been defined so we can specify the object above.
     genre = models.ManyToManyField(Genre, help_text='Select a genre for this book')
-    language = models.ManyToManyField(Language, help_text='Select a book language')
 
     def __str__(self):
         """String for representing the Model object."""
@@ -49,18 +48,13 @@ class Book(models.Model):
 
     display_genre.short_description = 'Genre'
     
-    def display_language(self):
-        """Create a string for the Genre. This is required to display genre in Admin."""
-        return ', '.join(language.lang for language in self.language.all()[:3])
-
-    display_language.short_description = 'Language'
-
 class BookInstance(models.Model):
     """Model representing a specific copy of a book (i.e. that can be borrowed from the library)."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular book across whole library')
     book = models.ForeignKey('Book', on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
+    language = models.ForeignKey('Language',max_length=20, on_delete=models.SET_NULL, null=True)
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),
